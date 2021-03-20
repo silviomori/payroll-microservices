@@ -2,6 +2,7 @@ package com.technomori.hrpayroll.services;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.technomori.hrpayroll.entities.Payment;
@@ -15,14 +16,14 @@ public class PaymentServiceImpl implements PaymentService {
 	private WorkerServiceProxy workerServiceProxy;
 
 	public PaymentServiceImpl() {
-
 	}
 
 	public Payment getPayment(Long workerId, Integer days) {
-		Worker worker = workerServiceProxy.getWorker(workerId);
-		if(worker == null) {
+		ResponseEntity<Worker> response = workerServiceProxy.findById(workerId);
+		if(response == null) {
 			return null;
 		}
+		Worker worker = response.getBody();
 		return new Payment(worker.getName(), worker.getDailyIncome(), days);
 	}
 }

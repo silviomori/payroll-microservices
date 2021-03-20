@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.technomori.hrpayroll.entities.Worker;
@@ -31,7 +32,8 @@ public class PaymentServiceUnitTest {
 		john.setId(11L);
 		john.setDailyIncome(50d);
 
-		Mockito.when(workerServiceProxy.getWorker(john.getId())).thenReturn(john);
+		Mockito.when(workerServiceProxy.findById(john.getId()))
+			.thenReturn(ResponseEntity.ok(john));
 	}
 
 	@Test
