@@ -8,4 +8,5 @@
  */
 
 rootProject.name = 'payroll-microservices'
-include 'hr-worker', 'hr-payroll', 'hr-eureka-server', 'hr-api-gateway-zuul'
+include 'hr-worker', 'hr-payroll', 'hr-eureka-server', 'hr-api-gateway-zuul',
+    'hr-user'
