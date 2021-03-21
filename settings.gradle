@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'payroll-microservices'
-include 'hr-worker', 'hr-payroll'
+include 'hr-worker', 'hr-payroll', 'hr-eureka-server'
