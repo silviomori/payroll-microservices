@@ -29,7 +29,6 @@ import com.technomori.hrworker.repositories.WorkerRepository;
 		webEnvironment = SpringBootTest.WebEnvironment.MOCK,
 		classes = HrWorkerApplication.class)
 @AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-test.properties")
 @AutoConfigureTestDatabase
 public class WorkerRestControllerTest {
 
