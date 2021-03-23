@@ -3,8 +3,6 @@ package com.technomori.hruser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import java.util.List;
-
 import org.hibernate.TransientObjectException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,9 +29,7 @@ public class UserRoleUnitTest {
 	@Test
     public void whenFindByEmail_thenReturnUserWithRole() {
 		Role guest = new Role("guest");
-        User alex = new User();
-        alex.setName("alex");
-        alex.setEmail("alex@email.com");
+        User alex = new User("Alex", "alex@email.com", "1234");
         alex.addRole(guest);
 
         entityManager.persistAndFlush(guest);
@@ -47,9 +43,7 @@ public class UserRoleUnitTest {
 	@Test
     public void whenInvalidRole_thenThrowsException() {
 		Role guest = new Role("guest");
-        User alex = new User();
-        alex.setName("alex");
-        alex.setEmail("alex@email.com");
+        User alex = new User("Alex", "alex@email.com", "1234");
         alex.addRole(guest);
 
         assertThatExceptionOfType(IllegalStateException.class)
@@ -67,13 +61,36 @@ public class UserRoleUnitTest {
         entityManager.persist(admin);
         entityManager.flush();
 
-        User alex = new User();
-        alex.setName("alex");
-        alex.setEmail("alex@email.com");
+        User alex = new User("Alex", "alex@email.com", "1234");
         alex.addRole(guest);
         alex.addRole(operator);
         alex.addRole(admin);
 
+        entityManager.persistAndFlush(alex);
+
+        User found = userRepository.findByEmail(alex.getEmail());
+
+        assertThat(found.getRoles()).hasSize(3).extracting(Role::getRoleName)
+        	.containsOnly(guest.getRoleName(), operator.getRoleName(),
+        			admin.getRoleName());
+    }
+
+    @Test
+    public void givenDuplicatedRoles_thenReturnUniqueRoles() {
+        Role guest = new Role("guest");
+        Role operator = new Role("operator");
+        Role admin = new Role("admin");
+        entityManager.persist(guest);
+        entityManager.persist(operator);
+        entityManager.persist(admin);
+        entityManager.flush();
+
+        User alex = new User("Alex", "alex@email.com", "1234");
+        alex.addRole(guest);
+        alex.addRole(operator);
+        alex.addRole(admin);
+        alex.addRole(guest);
+        
         entityManager.persistAndFlush(alex);
 
         User found = userRepository.findByEmail(alex.getEmail());

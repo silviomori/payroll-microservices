@@ -1,9 +1,13 @@
 package com.technomori.hruser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
 
+import javax.persistence.PersistenceException;
+
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +25,10 @@ public class UserRepositoryUnitTest {
 
 	@Autowired
 	private TestEntityManager entityManager;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Test
     public void whenFindByEmail_thenReturnUser() {
         User alex = new User();
@@ -49,6 +53,8 @@ public class UserRepositoryUnitTest {
     public void whenFindById_thenReturnUser() {
         User user = new User();
         user.setName("test");
+        user.setEmail("test@gmail.com");
+        user.setPassword("1234");
         user = entityManager.persistAndFlush(user);
 
         User fromDb = userRepository.findById(user.getId()).orElse(null);
@@ -63,12 +69,9 @@ public class UserRepositoryUnitTest {
 
     @Test
     public void givenSetOfUsers_whenFindAll_thenReturnAllUsers() {
-        User alex = new User();
-        alex.setName("alex");
-        User ron = new User();
-        ron.setName("ron");
-        User bob = new User();
-        bob.setName("bob");
+        User alex = new User("Alex", "alex@email.com", "1234");
+        User ron = new User("Ron", "ron@email.com", "1234");
+        User bob = new User("Bob", "bob@email.com", "1234");
 
         entityManager.persist(alex);
         entityManager.persist(ron);
@@ -79,5 +82,35 @@ public class UserRepositoryUnitTest {
 
         assertThat(allWorkers).hasSize(3).extracting(User::getName)
         	.containsOnly(alex.getName(), ron.getName(), bob.getName());
+    }
+
+    @Test
+    public void givenNonUniqueEmail_thenThrowsException() {
+        User alexSmith = new User("Alex Smith", "alex@email.com", "1234");
+        User alexDoe = new User("Alex Doe", "alex@email.com", "1234");
+
+        entityManager.persistAndFlush(alexSmith);
+
+        assertThatExceptionOfType(PersistenceException.class)
+	    	.isThrownBy(() -> entityManager.persistAndFlush(alexDoe))
+	    	.withCauseExactlyInstanceOf(ConstraintViolationException.class);
+    }
+    
+    @Test
+    public void givenNullEmail_thenThrowsException() {
+        User alex = new User("Alex", null, "1234");
+
+        assertThatExceptionOfType(PersistenceException.class)
+	    	.isThrownBy(() -> entityManager.persistAndFlush(alex))
+	    	.withCauseExactlyInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    public void givenNullPassword_thenThrowsException() {
+        User alex = new User("Alex", "alex@email.com", null);
+
+        assertThatExceptionOfType(PersistenceException.class)
+	    	.isThrownBy(() -> entityManager.persistAndFlush(alex))
+	    	.withCauseExactlyInstanceOf(ConstraintViolationException.class);
     }
 }

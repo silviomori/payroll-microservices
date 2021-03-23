@@ -1,9 +1,13 @@
 package com.technomori.hruser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
 
+import javax.persistence.PersistenceException;
+
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +60,26 @@ public class RoleRepositoryUnitTest {
         assertThat(allWorkers).hasSize(3).extracting(Role::getRoleName)
         	.containsOnly(guest.getRoleName(), operator.getRoleName(),
         			admin.getRoleName());
+    }
+
+    @Test
+    public void givenUnnamedRole_thenThrowsException() {
+        Role unnamed = new Role();
+
+        assertThatExceptionOfType(PersistenceException.class)
+	    	.isThrownBy(() -> entityManager.persistAndFlush(unnamed))
+	    	.withCauseExactlyInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    public void givenDuplicatedRoles_thenThrowsException() {
+        Role guestOne = new Role("guest");
+        Role guestTwo = new Role("guest");
+
+        entityManager.persistAndFlush(guestOne);
+
+        assertThatExceptionOfType(PersistenceException.class)
+	    	.isThrownBy(() -> entityManager.persistAndFlush(guestTwo))
+	    	.withCauseExactlyInstanceOf(ConstraintViolationException.class);
     }
 }
