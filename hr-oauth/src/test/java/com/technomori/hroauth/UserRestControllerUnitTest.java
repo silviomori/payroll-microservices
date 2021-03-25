@@ -24,7 +24,7 @@ import com.technomori.hroauth.services.UserService;
 @SpringBootTest(
 		webEnvironment = SpringBootTest.WebEnvironment.MOCK,
 		classes = HrOauthApplication.class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 public class UserRestControllerUnitTest {
 
 	@Autowired

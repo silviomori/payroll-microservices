@@ -2,6 +2,8 @@ package com.technomori.hroauth.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.technomori.hroauth.entities.User;
@@ -20,6 +22,15 @@ public class UserServiceImpl implements UserService {
 			return null;
 		}
 		return response.getBody();
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) {
+		User user = findByEmail(username);
+		if(user == null) {
+			throw new UsernameNotFoundException("Email not found: " + username);
+		}
+		return user;
 	}
 
 }
