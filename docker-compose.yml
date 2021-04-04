@@ -11,6 +11,16 @@ services:
     environment:
       POSTGRES_PASSWORD: 1234567
       POSTGRES_DB: db_hr_user
+  db_hr_worker:
+    container_name: hr-worker-pg12
+    image: postgres:12-alpine
+    networks:
+      - hr-net
+    environment:
+      POSTGRES_PASSWORD: 1234567
+      POSTGRES_DB: db_hr_worker
+    ports:
+      - "5433:5432"
   pgadmin4:
     container_name: pgadmin4
     image: dpage/pgadmin4
